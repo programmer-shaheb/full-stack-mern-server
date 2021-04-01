@@ -17,15 +17,59 @@ app.use(express.urlencoded({ extended: false }));
 
 client.connect((err) => {
   const productCollection = client.db("hungryhelpersdb").collection("products");
+  const orderCollection = client.db("hungryhelpersdb").collection("orders");
+
+  app.get("/products", (req, res) => {
+    productCollection.find().toArray((err, items) => {
+      res.send(items);
+    });
+  });
+
+  app.get("/products/:id", (req, res) => {
+    const findProduct = req.params.id;
+    console.log(findProduct);
+    productCollection
+      .find({ _id: ObjectId(findProduct) })
+      .toArray((err, items) => {
+        res.send(items);
+      });
+  });
 
   app.post("/addProduct", (req, res) => {
     const newProduct = req.body;
-    console.log("adding new product", newProduct);
+    productCollection.insertOne(newProduct).then((result) => {
+      res.send(result.insertedCount > 0);
+    });
+  });
+
+  app.post("/addOrder", (req, res) => {
+    const newOrder = req.body;
+    orderCollection.insertOne(newOrder).then((result) => {
+      console.log(result);
+      res.send(result.insertedCount > 0);
+    });
+  });
+
+  app.get("/orderInfo", (req, res) => {
+    const email = req.query.email;
+    orderCollection.find({ isLoggedIn: email }).toArray((err, documents) => {
+      res.send(documents);
+    });
+  });
+
+  app.delete("/delete/:id", (req, res) => {
+    const deleteProduct = req.params.id;
+    console.log(deleteProduct);
+    productCollection
+      .deleteOne({ _id: ObjectId(deleteProduct) })
+      .then((result) => {
+        res.send(result.deletedCount > 0);
+      });
   });
 });
 
 app.get("/", (req, res) => {
-  res.send("hello u !!");
+  res.send("hello uooouuu !!");
 });
 
 app.listen(port, () => console.log(`Listening To Port ${port}`));
