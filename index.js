@@ -10,7 +10,6 @@ const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
-
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
@@ -27,7 +26,6 @@ client.connect((err) => {
 
   app.get("/products/:id", (req, res) => {
     const findProduct = req.params.id;
-    console.log(findProduct);
     productCollection
       .find({ _id: ObjectId(findProduct) })
       .toArray((err, items) => {
@@ -45,7 +43,6 @@ client.connect((err) => {
   app.post("/addOrder", (req, res) => {
     const newOrder = req.body;
     orderCollection.insertOne(newOrder).then((result) => {
-      console.log(result);
       res.send(result.insertedCount > 0);
     });
   });
@@ -59,17 +56,12 @@ client.connect((err) => {
 
   app.delete("/delete/:id", (req, res) => {
     const deleteProduct = req.params.id;
-    console.log(deleteProduct);
     productCollection
       .deleteOne({ _id: ObjectId(deleteProduct) })
       .then((result) => {
         res.send(result.deletedCount > 0);
       });
   });
-});
-
-app.get("/", (req, res) => {
-  res.send("hello uooouuu !!");
 });
 
 app.listen(port, () => console.log(`Listening To Port ${port}`));
